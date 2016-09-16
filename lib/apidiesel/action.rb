@@ -157,8 +157,6 @@ module Apidiesel
       EOT
     end
 
-    private
-
     # Returns current class name formatted for use as a method name
     #
     # Example: {Apidiesel::Actions::Foo} will return `foo`
@@ -167,8 +165,6 @@ module Apidiesel
     def self.name_as_method
       ::ActiveSupport::Inflector.underscore(::ActiveSupport::Inflector.demodulize(name))
     end
-
-    public
 
     # @param [Apidiesel::Api] api A reference to the parent Api object
     def initialize(api)
