@@ -1,5 +1,4 @@
 module Apidiesel
-
   # This is the abstract main interface class for the Apidiesel gem. It is meant to be
   # inherited from:
   #
@@ -81,7 +80,7 @@ module Apidiesel
 
       # Registers the individual API endpoint definitions
       def register_actions
-        namespace = "#{self.name.deconstantize}::Actions".safe_constantize
+        namespace = "#{name.deconstantize}::Actions".safe_constantize
 
         namespace.constants.each do |action|
           namespace.const_get(action).register(self)
@@ -106,7 +105,7 @@ module Apidiesel
       self.class.logger
     end
 
-      protected
+    protected
 
     def execute_request(action_klass, *args)
       request = action_klass.new(self).build_request(*args)
@@ -119,11 +118,11 @@ module Apidiesel
 
       request_handlers.each do |handler|
         request = handler.run(request, @config)
-        break if request.response_body != nil
+        break unless request.response_body.nil?
       end
 
-      unless request.response_body != nil
-        raise "All request handlers failed to deliver a response"
+      if request.response_body.nil?
+        raise 'All request handlers failed to deliver a response'
       end
 
       response_handlers.each do |handler|
@@ -151,6 +150,5 @@ module Apidiesel
 
       raise e
     end
-
   end
 end

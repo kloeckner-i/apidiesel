@@ -14,7 +14,7 @@ module Apidiesel
           execute_request(request: request,
                           payload: payload,
                           api_config: api_config) do |http_request|
-            http_request.headers = {"Accept" => "application/json", "Content-Type" => "application/json"}
+            http_request.headers = { 'Accept' => 'application/json', 'Content-Type' => 'application/json' }
             http_request
           end
 
