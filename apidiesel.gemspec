@@ -31,4 +31,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'pry-byebug', '~> 3.2.0'
   spec.add_development_dependency 'pry-rescue', '~> 1.4'
   spec.add_development_dependency 'pry-stack_explorer', '~> 0.4.9'
+  spec.add_development_dependency 'rspec', '~> 3'
 end
