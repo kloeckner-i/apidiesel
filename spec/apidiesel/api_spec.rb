@@ -9,7 +9,7 @@ describe Apidiesel::Api do
         # dummy class for a simple request handler
         class RequestHandler
           def run(request, _)
-            request.response_body = "foobar"
+            request.response_body = 'foobar'
             request
           end
         end
@@ -48,6 +48,21 @@ describe Apidiesel::Api do
         subject.config(:foo, 0)
         expect { subject.config(:foo, 42) }.to change { subject.config[:foo] }
           .from(0).to(42)
+      end
+    end
+
+    describe '.retries' do
+      it 'defaults to 0' do
+        expect(subject.retries).to eql 0
+      end
+
+      it 'sets an amount of retries before raising an error' do
+        expect { subject.retries 5 }.to change { subject.retries }.to 5
+      end
+
+      it 'can only set integers' do
+        expect { subject.retries 5.5 }.to raise_error(ArgumentError)
+        expect { subject.retries 'foo' }.to raise_error(ArgumentError)
       end
     end
 

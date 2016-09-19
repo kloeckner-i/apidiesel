@@ -37,6 +37,12 @@ module Apidiesel
         end
       end
 
+      def retries(number = nil)
+        return (@config[:retries] || 0) if number.nil?
+        raise ArgumentError unless number.is_a?(Integer)
+        @config[:retries] = number
+      end
+
       # Combined getter/setter for this actions URL
       #
       # Falls back to the Api setting if blank.
