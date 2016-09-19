@@ -1,4 +1,42 @@
 describe Apidiesel::Api do
+  describe 'Integration' do
+    # the next  section tries to simulate the use of Apidiesel
+    # to a degree
+    let(:api_class) { FoolishApi::MyApi }
+    before do
+      # there is no documentation for this
+      module Handlers
+        # dummy class for a simple request handler
+        class RequestHandler
+          def run(request, _)
+            request.response_body = "foobar"
+            request
+          end
+        end
+      end
+
+      module FoolishApi
+        MyApi = Class.new(Apidiesel::Api) do
+          url 'https://foo.bar.com'
+          use Handlers
+        end
+
+        module Actions
+          GetUsers = Class.new(Apidiesel::Action) do
+            http_method :get
+            url path: '/users'
+          end
+        end
+      end
+      FoolishApi::MyApi.register_actions
+    end
+
+    it 'makes a request against https://foor.bar.com/users' do
+      api = api_class.new
+      api.get_users
+    end
+  end
+
   describe 'DSL' do
     subject(:subject) { described_class }
     describe '.config' do
