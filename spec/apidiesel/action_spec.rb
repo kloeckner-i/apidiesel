@@ -1,5 +1,6 @@
 describe Apidiesel::Action do
   let(:action) { Class.new(described_class) }
+  let(:api) { Apidiesel::Api.new }
 
   describe 'class methods' do
     describe '.endpoint' do
@@ -24,6 +25,31 @@ describe Apidiesel::Action do
     describe '.url' do
       it 'fails when being given a URI with args' do
         expect { action.url('http://foobar.com', { foo: 4, bar: 2 }) }.to raise_error(ArgumentError)
+      end
+    end
+  end
+
+  describe 'instance methods' do
+    describe '.endpoint' do
+      it 'delegates to class method' do
+        action.endpoint '/freckles'
+        expect(action.new(api).endpoint).to eql('/freckles')
+      end
+    end
+
+    describe '.http_method' do
+      it 'falls back to :get' do
+        expect(action.new(api).http_method).to eql(:get)
+      end
+
+      it 'delegates to the class method' do
+        action.http_method :options
+        expect(action.new(api).http_method).to eql(:options)
+      end
+
+      it 'delegates to the api method set' do
+        Api = Class.new(Apidiesel::Api) { http_method :head }
+        expect(action.new(Api.new).http_method).to eql :head
       end
     end
   end
