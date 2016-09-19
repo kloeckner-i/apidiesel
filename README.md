@@ -49,6 +49,9 @@ class Api < Apidiesel::Api
   url 'https://foo.example'
   http_method :post
 
+  # times to retry a request before it fails
+  retries 3 
+
   register_actions
 end
 
