@@ -49,15 +49,15 @@ describe Apidiesel::Handlers do
               end
             end
           end
-          MyApi = Class.new(Apidiesel::Api) do
+          NewApi = Class.new(Apidiesel::Api) do
             use Handlers
           end
         end
 
         it 'registers all the handlers' do
-          expect(MyApi.request_handlers.length).to eql 1
-          expect(MyApi.response_handlers.length).to eql 1
-          expect(MyApi.exception_handlers.length).to eql 1
+          expect(NewApi.request_handlers.length).to eql 1
+          expect(NewApi.response_handlers.length).to eql 1
+          expect(NewApi.exception_handlers.length).to eql 1
         end
       end
     end

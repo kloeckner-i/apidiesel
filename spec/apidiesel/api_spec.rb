@@ -2,38 +2,57 @@ describe Apidiesel::Api do
   describe 'Integration' do
     # the next  section tries to simulate the use of Apidiesel
     # to a degree
-    let(:api_class) { FoolishApi::MyApi }
-    before do
-      # there is no documentation for this
-      module Handlers
-        # dummy class for a simple request handler
-        class RequestHandler
-          def run(request, _)
-            request.response_body = 'foobar'
-            request
-          end
+
+    module Handlers
+      # dummy class for a simple request handler
+      # includes a demo call (which is not implemented by this gem directly)
+      # it simulates some failure
+      class RequestHandler
+        def run(request, _)
+          Net::HTTP.get(request.url)
+          request.response_body = 'foobar'
+          request
         end
       end
-
-      module FoolishApi
-        MyApi = Class.new(Apidiesel::Api) do
-          url 'https://foo.bar.com'
-          use Handlers
-        end
-
-        module Actions
-          GetUsers = Class.new(Apidiesel::Action) do
-            http_method :get
-            url path: '/users'
-          end
-        end
-      end
-      FoolishApi::MyApi.register_actions
     end
 
-    it 'makes a request against https://foor.bar.com/users' do
-      api = api_class.new
+    module FoolishApi
+      MyApi = Class.new(Apidiesel::Api) do
+        url 'https://foo.bar.com'
+        use Handlers
+      end
+
+      module Actions
+        GetUsers = Class.new(Apidiesel::Action) do
+          http_method :get
+          url path: '/users'
+        end
+      end
+    end
+    # create our dummy api once
+    FoolishApi::MyApi.register_actions
+
+    it 'makes a request against https://foo.bar.com/users' do
+      request = stub_request(:get, 'https://foo.bar.com/users')
+      api = FoolishApi::MyApi.new
       api.get_users
+      expect(request).to have_been_made.once
+    end
+
+    it 'allows for retrying when a request fails' do
+      request = stub_request(:get, 'https://foo.bar.com/users')
+                .to_timeout
+                .then
+                .to_raise(StandardError)
+                .then
+                .to_return(body: 'foobar')
+
+      # set retries to three
+      FoolishApi::MyApi.retries 3
+      api = FoolishApi::MyApi.new
+
+      api.get_users
+      expect(request).to have_been_made.at_least_times(3)
     end
   end
 

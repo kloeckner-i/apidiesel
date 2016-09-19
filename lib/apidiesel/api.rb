@@ -111,6 +111,10 @@ module Apidiesel
       self.class.logger
     end
 
+    def retries
+      self.class.retries || 0
+    end
+
     protected
 
     def execute_request(action_klass, *args)
@@ -123,7 +127,7 @@ module Apidiesel
         action_klass.response_handlers.any? ? action_klass.response_handlers : self.class.response_handlers
 
       request_handlers.each do |handler|
-        request = handler.run(request, @config)
+        request = try_multiple(handler, request, retries)
         break unless request.response_body.nil?
       end
 
@@ -155,6 +159,15 @@ module Apidiesel
       end
 
       raise e
+    end
+
+    def try_multiple(handler, request, retries = 0)
+      return handler.run(request, @config) if retries.zero?
+      begin
+        handler.run(request, @config)
+      rescue
+        try_multiple(handler, request, retries - 1)
+      end
     end
   end
 end
