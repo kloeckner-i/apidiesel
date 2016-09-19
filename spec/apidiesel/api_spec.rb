@@ -54,6 +54,18 @@ describe Apidiesel::Api do
       api.get_users
       expect(request).to have_been_made.at_least_times(3)
     end
+
+    it 'ignores retrying when a request is successful' do
+      request = stub_request(:get, 'https://foo.bar.com/users')
+                .to_return(body: 'foobar')
+
+      # set retries to fifteen
+      FoolishApi::MyApi.retries 15
+      api = FoolishApi::MyApi.new
+
+      api.get_users
+      expect(request).to have_been_made.once
+    end
   end
 
   describe 'DSL' do
