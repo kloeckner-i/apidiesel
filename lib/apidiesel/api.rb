@@ -162,7 +162,7 @@ module Apidiesel
     end
 
     def try_multiple(handler, request, retries = 0)
-      return handler.run(request, @config) if retries.zero?
+      return handler.run(request, @config) if retries <= 0
       begin
         handler.run(request, @config)
       rescue
