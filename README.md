@@ -5,6 +5,8 @@
 Apidiesel is a DSL for building API clients. It is made to be highly readable,
 easily extensible and to assume as little as possible about your API.
 
+_Note_ This is a fork of the original library `apidiesel` by @janfoeh. The [original is here](https://github.com/janfoeh/apidiesel). This fork is intended to introduce circuit breaking mechanism in the request making, as it is needed for some projects @kloeckner-i.
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -47,6 +49,9 @@ class Api < Apidiesel::Api
   url 'https://foo.example'
   http_method :post
 
+  # times to retry a request before it fails
+  retries 3 
+
   register_actions
 end
 
@@ -62,5 +67,5 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/apidiesel.
+Bug reports and pull requests are welcome on GitHub at https://github.com/kloeckner-i/apidiesel.
 

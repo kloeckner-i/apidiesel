@@ -1,6 +1,6 @@
-require "apidiesel"
+require 'apidiesel'
 
-Dir[ File.join(__dir__, 'actions', '*.rb') ].each do |file|
+Dir[File.join(__dir__, 'actions', '*.rb')].each do |file|
   require file
 end
 

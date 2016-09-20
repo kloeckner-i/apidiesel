@@ -1,5 +1,4 @@
 module Apidiesel
-
   # This is the abstract main interface class for the Apidiesel gem. It is meant to be
   # inherited from:
   #
@@ -36,6 +35,12 @@ module Apidiesel
         else
           @config
         end
+      end
+
+      def retries(number = nil)
+        return (@config[:retries] || 0) if number.nil?
+        raise ArgumentError unless number.is_a?(Integer)
+        @config[:retries] = number
       end
 
       # Combined getter/setter for this actions URL
@@ -81,7 +86,7 @@ module Apidiesel
 
       # Registers the individual API endpoint definitions
       def register_actions
-        namespace = "#{self.name.deconstantize}::Actions".safe_constantize
+        namespace = "#{name.deconstantize}::Actions".safe_constantize
 
         namespace.constants.each do |action|
           namespace.const_get(action).register(self)
@@ -106,7 +111,11 @@ module Apidiesel
       self.class.logger
     end
 
-      protected
+    def retries
+      self.class.retries || 0
+    end
+
+    protected
 
     def execute_request(action_klass, *args)
       request = action_klass.new(self).build_request(*args)
@@ -118,12 +127,12 @@ module Apidiesel
         action_klass.response_handlers.any? ? action_klass.response_handlers : self.class.response_handlers
 
       request_handlers.each do |handler|
-        request = handler.run(request, @config)
-        break if request.response_body != nil
+        request = try_multiple(handler, request, retries)
+        break unless request.response_body.nil?
       end
 
-      unless request.response_body != nil
-        raise "All request handlers failed to deliver a response"
+      if request.response_body.nil?
+        raise 'All request handlers failed to deliver a response'
       end
 
       response_handlers.each do |handler|
@@ -152,5 +161,13 @@ module Apidiesel
       raise e
     end
 
+    def try_multiple(handler, request, retries = 0)
+      return handler.run(request, @config) if retries <= 0
+      begin
+        handler.run(request, @config)
+      rescue
+        try_multiple(handler, request, retries - 1)
+      end
+    end
   end
 end

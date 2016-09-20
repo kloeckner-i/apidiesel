@@ -1,5 +1,4 @@
 module Apidiesel
-
   # An abstract base class for API endpoints.
   class Action
     extend Dsl
@@ -37,9 +36,7 @@ module Apidiesel
         @parameter_formatter = block
       end
 
-      def parameter_formatter
-        @parameter_formatter
-      end
+      attr_reader :parameter_formatter
 
       # Combined getter/setter for this actions' endpoint
       #
@@ -119,7 +116,7 @@ module Apidiesel
       #                       `Request` instance.
       def url(value = nil, **kargs)
         if value && kargs.any?
-          raise ArgumentError, "you cannot supply both argument and keyword args"
+          raise ArgumentError, 'you cannot supply both argument and keyword args'
         end
 
         @url_value  = value
@@ -160,18 +157,14 @@ module Apidiesel
       EOT
     end
 
-      private
-
     # Returns current class name formatted for use as a method name
     #
     # Example: {Apidiesel::Actions::Foo} will return `foo`
     #
     # @return [String] the demodulized, underscored name of the current Class
     def self.name_as_method
-      ::ActiveSupport::Inflector.underscore( ::ActiveSupport::Inflector.demodulize(self.name) )
+      ::ActiveSupport::Inflector.underscore(::ActiveSupport::Inflector.demodulize(name))
     end
-
-      public
 
     # @param [Apidiesel::Api] api A reference to the parent Api object
     def initialize(api)
@@ -223,14 +216,14 @@ module Apidiesel
       processed_result = {}
 
       response_data = case response_data
-      when Hash
-        response_data.deep_symbolize_keys
-      when Array
-        response_data.map do |element|
-          element.is_a?(Hash) ? element.deep_symbolize_keys : element
-        end
-      else
-        response_data
+                      when Hash
+                        response_data.deep_symbolize_keys
+                      when Array
+                        response_data.map do |element|
+                          element.is_a?(Hash) ? element.deep_symbolize_keys : element
+                        end
+                      else
+                        response_data
       end
 
       if self.class.response_filters.none? && self.class.response_formatters.none?
@@ -248,19 +241,19 @@ module Apidiesel
       processed_result
     end
 
-      protected
+    protected
 
     # @return [URI]
     def build_url(action_arguments, request)
       url = case self.class.url_value
-      when String
-        URI( self.class.url_value % action_arguments )
-      when URI
-        self.class.url_value
-      when Proc
-        self.class.url_value.call(base_url, request)
-      when nil
-        base_url
+            when String
+              URI(self.class.url_value % action_arguments)
+            when URI
+              self.class.url_value
+            when Proc
+              self.class.url_value.call(base_url, request)
+            when nil
+              base_url
       end
 
       url_args = self.class.url_args.transform_values do |value|

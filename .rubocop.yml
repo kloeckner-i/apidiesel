@@ -1,0 +1,6 @@
+AllCops:
+  TargetRubyVersion: 2.2
+
+# I am a fan of 80, but go with 100 for the moment
+Metrics/LineLength:
+  Max: 100
