@@ -1,0 +1,13 @@
+language: ruby
+rvm:
+  - 2.2
+  - 2.3
+
+cache:
+  bundler: true
+  
+before_script:
+  - bundle install
+
+script: 'bundle exec rspec'
+  
